@@ -144,7 +144,7 @@ def re_encode_video(uri: str, is_vertical: bool) -> list[str]:
         [h264_enc]
         + v_filter
         + (["-filter_complex", filter_complex, "-map", "[v]"] if filter_complex else [])
-        + ["-b:v", "3000k", "-coder", "1", "-bufsize", "3000k"]
+        + ["-b:v", "6800k", "-coder", "1", "-bufsize", "6800k"]
         + ["-profile:v", "77" if h264_enc == "h264_v4l2m2m" else "main"]
         + ["-preset", "fast" if h264_enc in {"h264_nvenc", "h264_qsv"} else "ultrafast"]
         + ["-forced-idr", "1", "-force_key_frames", "expr:gte(t,n_forced*2)"]
