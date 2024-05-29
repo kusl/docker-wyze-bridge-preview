@@ -1,0 +1,516 @@
+kushal@colorado:~/source/docker-wyze-bridge$ docker ps
+CONTAINER ID   IMAGE                             COMMAND                  CREATED        STATUS                  PORTS                                                                                                                                                                                                                                       NAMES
+ee3e67ed703e   kush/docker-wyze-bridge:preview   "flask run --host=0.…"   14 hours ago   Up 14 hours             0.0.0.0:1935->1935/tcp, :::1935->1935/tcp, 0.0.0.0:5000->5000/tcp, :::5000->5000/tcp, 0.0.0.0:8554->8554/tcp, :::8554->8554/tcp, 0.0.0.0:8888-8889->8888-8889/tcp, :::8888-8889->8888-8889/tcp, 0.0.0.0:8189->8189/udp, :::8189->8189/udp   wyze-bridge-preview
+79664f33b7d8   louislam/uptime-kuma:1            "/usr/bin/dumb-init …"   4 months ago   Up 27 hours (healthy)   0.0.0.0:3001->3001/tcp, :::3001->3001/tcp                                                                                                                                                                                                   uptime-kuma
+kushal@colorado:~/source/docker-wyze-bridge$ docker stop ee3e67ed703e
+ee3e67ed703e
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ time docker build -t kush/docker-wyze-bridge:preview -f docker/Dockerfile .
+Sending build context to Docker daemon  22.17MB
+Step 1/17 : ARG BUILD
+Step 2/17 : ARG BUILD_DATE
+Step 3/17 : ARG GITHUB_SHA
+Step 4/17 : FROM python:3.12-slim-bookworm as base
+ ---> cf001c2f8af7
+Step 5/17 : FROM base as builder
+ ---> cf001c2f8af7
+Step 6/17 : ARG BUILD_DATE
+ ---> Using cache
+ ---> 52f4045ad269
+Step 7/17 : RUN apt-get update     && apt-get install -y curl tar gcc     && apt-get clean     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3efb7fb787db
+Step 8/17 : COPY ./app/ /build/app/
+ ---> e874aec6351f
+Step 9/17 : RUN pip3 install --disable-pip-version-check --prefix=/build/usr/local -r /build/app/requirements.txt
+ ---> Running in 4a5e7c493bef
+Collecting flask (from -r /build/app/requirements.txt (line 1))
+  Downloading flask-3.0.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting Flask-HTTPAuth (from -r /build/app/requirements.txt (line 2))
+  Downloading Flask_HTTPAuth-4.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting paho-mqtt (from -r /build/app/requirements.txt (line 3))
+  Downloading paho_mqtt-2.1.0-py3-none-any.whl.metadata (23 kB)
+Collecting pydantic (from -r /build/app/requirements.txt (line 4))
+  Downloading pydantic-2.7.2-py3-none-any.whl.metadata (108 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 108.5/108.5 kB 2.3 MB/s eta 0:00:00
+Collecting python-dotenv (from -r /build/app/requirements.txt (line 5))
+  Downloading python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting requests (from -r /build/app/requirements.txt (line 6))
+  Downloading requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting xxtea (from -r /build/app/requirements.txt (line 7))
+  Downloading xxtea-3.2.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)
+Collecting Werkzeug>=3.0.0 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading werkzeug-3.0.3-py3-none-any.whl.metadata (3.7 kB)
+Collecting Jinja2>=3.1.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading jinja2-3.1.4-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.1.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting click>=8.1.3 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading click-8.1.7-py3-none-any.whl.metadata (3.0 kB)
+Collecting blinker>=1.6.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading blinker-1.8.2-py3-none-any.whl.metadata (1.6 kB)
+Collecting annotated-types>=0.4.0 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.18.3 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading pydantic_core-2.18.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+Collecting typing-extensions>=4.6.1 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading typing_extensions-4.12.0-py3-none-any.whl.metadata (3.0 kB)
+Collecting charset-normalizer<4,>=2 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading charset_normalizer-3.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (33 kB)
+Collecting idna<4,>=2.5 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading idna-3.7-py3-none-any.whl.metadata (9.9 kB)
+Collecting urllib3<3,>=1.21.1 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading urllib3-2.2.1-py3-none-any.whl.metadata (6.4 kB)
+Collecting certifi>=2017.4.17 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading certifi-2024.2.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2>=3.1.2->flask->-r /build/app/requirements.txt (line 1))
+  Downloading MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.0 kB)
+Downloading flask-3.0.3-py3-none-any.whl (101 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 101.7/101.7 kB 1.3 MB/s eta 0:00:00
+Downloading Flask_HTTPAuth-4.8.0-py3-none-any.whl (7.0 kB)
+Downloading paho_mqtt-2.1.0-py3-none-any.whl (67 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.2/67.2 kB 2.5 MB/s eta 0:00:00
+Downloading pydantic-2.7.2-py3-none-any.whl (409 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 409.5/409.5 kB 3.4 MB/s eta 0:00:00
+Downloading pydantic_core-2.18.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 5.6 MB/s eta 0:00:00
+Downloading python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Downloading requests-2.32.3-py3-none-any.whl (64 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 3.0 MB/s eta 0:00:00
+Downloading xxtea-3.2.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Downloading blinker-1.8.2-py3-none-any.whl (9.5 kB)
+Downloading certifi-2024.2.2-py3-none-any.whl (163 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 163.8/163.8 kB 5.5 MB/s eta 0:00:00
+Downloading charset_normalizer-3.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (141 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 141.9/141.9 kB 5.1 MB/s eta 0:00:00
+Downloading click-8.1.7-py3-none-any.whl (97 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 97.9/97.9 kB 4.1 MB/s eta 0:00:00
+Downloading idna-3.7-py3-none-any.whl (66 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.8/66.8 kB 2.3 MB/s eta 0:00:00
+Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Downloading jinja2-3.1.4-py3-none-any.whl (133 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.3/133.3 kB 5.0 MB/s eta 0:00:00
+Downloading typing_extensions-4.12.0-py3-none-any.whl (37 kB)
+Downloading urllib3-2.2.1-py3-none-any.whl (121 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.1/121.1 kB 4.9 MB/s eta 0:00:00
+Downloading werkzeug-3.0.3-py3-none-any.whl (227 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 227.3/227.3 kB 5.0 MB/s eta 0:00:00
+Downloading MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (28 kB)
+Installing collected packages: xxtea, urllib3, typing-extensions, python-dotenv, paho-mqtt, MarkupSafe, itsdangerous, idna, click, charset-normalizer, certifi, blinker, annotated-types, Werkzeug, requests, pydantic-core, Jinja2, pydantic, flask, Flask-HTTPAuth
+Successfully installed Flask-HTTPAuth-4.8.0 Jinja2-3.1.4 MarkupSafe-2.1.5 Werkzeug-3.0.3 annotated-types-0.7.0 blinker-1.8.2 certifi-2024.2.2 charset-normalizer-3.3.2 click-8.1.7 flask-3.0.3 idna-3.7 itsdangerous-2.2.0 paho-mqtt-2.1.0 pydantic-2.7.2 pydantic-core-2.18.3 python-dotenv-1.0.1 requests-2.32.3 typing-extensions-4.12.0 urllib3-2.2.1 xxtea-3.2.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+Removing intermediate container 4a5e7c493bef
+ ---> 87f8893bb426
+Step 10/17 : RUN echo "BUILDING IMAGE FOR $(uname -m)" &&     if [ "$(uname -m)" = "armv7l" ]; then     LIB_ARCH=arm; FFMPEG_ARCH=arm32v7; MTX_ARCH=armv7;     elif [ "$(uname -m)" = "aarch64" ]; then     LIB_ARCH=arm64; FFMPEG_ARCH=aarch64; MTX_ARCH=arm64v8;     else     LIB_ARCH=amd64; FFMPEG_ARCH=x86_64; MTX_ARCH=amd64;     fi &&     cd /build     && . app/.env     && mkdir -p tokens img     && curl -SL https://github.com/homebridge/ffmpeg-for-homebridge/releases/latest/download/ffmpeg-alpine-${FFMPEG_ARCH}.tar.gz     | tar xzf - -C .     && curl -SL https://github.com/bluenviron/mediamtx/releases/download/v${MTX_TAG}/mediamtx_v${MTX_TAG}_linux_${MTX_ARCH}.tar.gz     | tar xzf - -C app     && cp app/lib/lib.${LIB_ARCH} usr/local/lib/libIOTCAPIs_ALL.so     && rm -rf app/*.txt app/lib/      && if [ -z "${BUILD_DATE}" ]; then echo BUILD_DATE=$(date) > .build_date; else echo BUILD_DATE=${BUILD_DATE} > .build_date; fi
+ ---> Running in 52ae373a30f9
+BUILDING IMAGE FOR x86_64
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 26.5M  100 26.5M    0     0  9247k      0  0:00:02  0:00:02 --:--:-- 10.6M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 13.6M  100 13.6M    0     0  8808k      0  0:00:01  0:00:01 --:--:-- 10.9M
+Removing intermediate container 52ae373a30f9
+ ---> 5ee598d7eb55
+Step 11/17 : FROM base
+ ---> cf001c2f8af7
+Step 12/17 : ARG BUILD
+ ---> Using cache
+ ---> 4367913f5547
+Step 13/17 : ARG GITHUB_SHA
+ ---> Using cache
+ ---> df9bedf61e76
+Step 14/17 : COPY --from=builder /build /
+ ---> 2bd31c7b5f5d
+Step 15/17 : ENV PYTHONUNBUFFERED=1 FLASK_APP=frontend BUILD=$BUILD GITHUB_SHA=$GITHUB_SHA
+ ---> Running in 515c892f7cc6
+Removing intermediate container 515c892f7cc6
+ ---> e9705935ee5c
+Step 16/17 : WORKDIR /app
+ ---> Running in a7a86ac5582e
+Removing intermediate container a7a86ac5582e
+ ---> 06d3b8b07572
+Step 17/17 : CMD ["flask", "run", "--host=0.0.0.0"]
+ ---> Running in 05280c5223eb
+Removing intermediate container 05280c5223eb
+ ---> ca4556ed8f95
+Successfully built ca4556ed8f95
+Successfully tagged kush/docker-wyze-bridge:preview
+
+real    0m27.061s
+user    0m0.058s
+sys     0m0.061s
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ time docker build -t kush/docker-wyze-bridge:preview -f docker/Dockerfile .
+Sending build context to Docker daemon  22.17MB
+Step 1/17 : ARG BUILD
+Step 2/17 : ARG BUILD_DATE
+Step 3/17 : ARG GITHUB_SHA
+Step 4/17 : FROM python:3.12-slim-bookworm as base
+ ---> cf001c2f8af7
+Step 5/17 : FROM base as builder
+ ---> cf001c2f8af7
+Step 6/17 : ARG BUILD_DATE
+ ---> Using cache
+ ---> 52f4045ad269
+Step 7/17 : RUN apt-get update     && apt-get install -y curl tar gcc     && apt-get clean     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3efb7fb787db
+Step 8/17 : COPY ./app/ /build/app/
+ ---> Using cache
+ ---> e874aec6351f
+Step 9/17 : RUN pip3 install --disable-pip-version-check --prefix=/build/usr/local -r /build/app/requirements.txt
+ ---> Using cache
+ ---> 87f8893bb426
+Step 10/17 : RUN echo "BUILDING IMAGE FOR $(uname -m)" &&     if [ "$(uname -m)" = "armv7l" ]; then     LIB_ARCH=arm; FFMPEG_ARCH=arm32v7; MTX_ARCH=armv7;     elif [ "$(uname -m)" = "aarch64" ]; then     LIB_ARCH=arm64; FFMPEG_ARCH=aarch64; MTX_ARCH=arm64v8;     else     LIB_ARCH=amd64; FFMPEG_ARCH=x86_64; MTX_ARCH=amd64;     fi &&     cd /build     && . app/.env     && mkdir -p tokens img     && curl -SL https://github.com/homebridge/ffmpeg-for-homebridge/releases/latest/download/ffmpeg-alpine-${FFMPEG_ARCH}.tar.gz     | tar xzf - -C .     && curl -SL https://github.com/bluenviron/mediamtx/releases/download/v${MTX_TAG}/mediamtx_v${MTX_TAG}_linux_${MTX_ARCH}.tar.gz     | tar xzf - -C app     && cp app/lib/lib.${LIB_ARCH} usr/local/lib/libIOTCAPIs_ALL.so     && rm -rf app/*.txt app/lib/      && if [ -z "${BUILD_DATE}" ]; then echo BUILD_DATE=$(date) > .build_date; else echo BUILD_DATE=${BUILD_DATE} > .build_date; fi
+ ---> Using cache
+ ---> 5ee598d7eb55
+Step 11/17 : FROM base
+ ---> cf001c2f8af7
+Step 12/17 : ARG BUILD
+ ---> Using cache
+ ---> 4367913f5547
+Step 13/17 : ARG GITHUB_SHA
+ ---> Using cache
+ ---> df9bedf61e76
+Step 14/17 : COPY --from=builder /build /
+ ---> Using cache
+ ---> 2bd31c7b5f5d
+Step 15/17 : ENV PYTHONUNBUFFERED=1 FLASK_APP=frontend BUILD=$BUILD GITHUB_SHA=$GITHUB_SHA
+ ---> Using cache
+ ---> e9705935ee5c
+Step 16/17 : WORKDIR /app
+ ---> Using cache
+ ---> 06d3b8b07572
+Step 17/17 : CMD ["flask", "run", "--host=0.0.0.0"]
+ ---> Using cache
+ ---> ca4556ed8f95
+Successfully built ca4556ed8f95
+Successfully tagged kush/docker-wyze-bridge:preview
+
+real    0m0.455s
+user    0m0.056s
+sys     0m0.040s
+kushal@colorado:~/source/docker-wyze-bridge$ time docker push kush/docker-wyze-bridge:preview
+The push refers to repository [docker.io/kush/docker-wyze-bridge]
+c128e7c39c71: Pushed 
+2eb7c5261c95: Layer already exists 
+a9435642a9e3: Layer already exists 
+b3232f6d8e2e: Layer already exists 
+146826fa3ca0: Layer already exists 
+5d4427064ecc: Layer already exists 
+preview: digest: sha256:ae800d99ef3ed1af9d948fa0be1499ef4e21f92e08d240a4c51bf90a5deb5da3 size: 1582
+
+real    0m15.121s
+user    0m0.042s
+sys     0m0.027s
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ time docker-compose pull >> "$(date '+log-%Y-%m-%d-%H-%M.log.env')" 2>&1; docker-compose up >> "$(date '+log-%Y-%m-%d-%H-%M.log.env')" 2>&1
+
+real    0m0.943s
+user    0m0.342s
+sys     0m0.041s
+^Ckushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ time docker build -t kush/docker-wyze-bridge:preview -f docker/Dockerfile .
+Sending build context to Docker daemon   25.8MB
+Step 1/17 : ARG BUILD
+Step 2/17 : ARG BUILD_DATE
+Step 3/17 : ARG GITHUB_SHA
+Step 4/17 : FROM python:3.12-slim-bookworm as base
+ ---> cf001c2f8af7
+Step 5/17 : FROM base as builder
+ ---> cf001c2f8af7
+Step 6/17 : ARG BUILD_DATE
+ ---> Using cache
+ ---> 52f4045ad269
+Step 7/17 : RUN apt-get update     && apt-get install -y curl tar gcc     && apt-get clean     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3efb7fb787db
+Step 8/17 : COPY ./app/ /build/app/
+ ---> c3aa3f01428d
+Step 9/17 : RUN pip3 install --disable-pip-version-check --prefix=/build/usr/local -r /build/app/requirements.txt
+ ---> Running in 7e95937f9775
+Collecting flask (from -r /build/app/requirements.txt (line 1))
+  Downloading flask-3.0.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting Flask-HTTPAuth (from -r /build/app/requirements.txt (line 2))
+  Downloading Flask_HTTPAuth-4.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting paho-mqtt (from -r /build/app/requirements.txt (line 3))
+  Downloading paho_mqtt-2.1.0-py3-none-any.whl.metadata (23 kB)
+Collecting pydantic (from -r /build/app/requirements.txt (line 4))
+  Downloading pydantic-2.7.2-py3-none-any.whl.metadata (108 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 108.5/108.5 kB 1.9 MB/s eta 0:00:00
+Collecting python-dotenv (from -r /build/app/requirements.txt (line 5))
+  Downloading python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting requests (from -r /build/app/requirements.txt (line 6))
+  Downloading requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting xxtea (from -r /build/app/requirements.txt (line 7))
+  Downloading xxtea-3.2.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)
+Collecting Werkzeug>=3.0.0 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading werkzeug-3.0.3-py3-none-any.whl.metadata (3.7 kB)
+Collecting Jinja2>=3.1.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading jinja2-3.1.4-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.1.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting click>=8.1.3 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading click-8.1.7-py3-none-any.whl.metadata (3.0 kB)
+Collecting blinker>=1.6.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading blinker-1.8.2-py3-none-any.whl.metadata (1.6 kB)
+Collecting annotated-types>=0.4.0 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.18.3 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading pydantic_core-2.18.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+Collecting typing-extensions>=4.6.1 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading typing_extensions-4.12.0-py3-none-any.whl.metadata (3.0 kB)
+Collecting charset-normalizer<4,>=2 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading charset_normalizer-3.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (33 kB)
+Collecting idna<4,>=2.5 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading idna-3.7-py3-none-any.whl.metadata (9.9 kB)
+Collecting urllib3<3,>=1.21.1 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading urllib3-2.2.1-py3-none-any.whl.metadata (6.4 kB)
+Collecting certifi>=2017.4.17 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading certifi-2024.2.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2>=3.1.2->flask->-r /build/app/requirements.txt (line 1))
+  Downloading MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.0 kB)
+Downloading flask-3.0.3-py3-none-any.whl (101 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 101.7/101.7 kB 2.1 MB/s eta 0:00:00
+Downloading Flask_HTTPAuth-4.8.0-py3-none-any.whl (7.0 kB)
+Downloading paho_mqtt-2.1.0-py3-none-any.whl (67 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.2/67.2 kB 2.2 MB/s eta 0:00:00
+Downloading pydantic-2.7.2-py3-none-any.whl (409 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 409.5/409.5 kB 3.5 MB/s eta 0:00:00
+Downloading pydantic_core-2.18.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 5.8 MB/s eta 0:00:00
+Downloading python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Downloading requests-2.32.3-py3-none-any.whl (64 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 2.9 MB/s eta 0:00:00
+Downloading xxtea-3.2.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Downloading blinker-1.8.2-py3-none-any.whl (9.5 kB)
+Downloading certifi-2024.2.2-py3-none-any.whl (163 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 163.8/163.8 kB 4.6 MB/s eta 0:00:00
+Downloading charset_normalizer-3.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (141 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 141.9/141.9 kB 5.1 MB/s eta 0:00:00
+Downloading click-8.1.7-py3-none-any.whl (97 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 97.9/97.9 kB 3.8 MB/s eta 0:00:00
+Downloading idna-3.7-py3-none-any.whl (66 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.8/66.8 kB 2.8 MB/s eta 0:00:00
+Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Downloading jinja2-3.1.4-py3-none-any.whl (133 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.3/133.3 kB 4.8 MB/s eta 0:00:00
+Downloading typing_extensions-4.12.0-py3-none-any.whl (37 kB)
+Downloading urllib3-2.2.1-py3-none-any.whl (121 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.1/121.1 kB 4.2 MB/s eta 0:00:00
+Downloading werkzeug-3.0.3-py3-none-any.whl (227 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 227.3/227.3 kB 2.5 MB/s eta 0:00:00
+Downloading MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (28 kB)
+Installing collected packages: xxtea, urllib3, typing-extensions, python-dotenv, paho-mqtt, MarkupSafe, itsdangerous, idna, click, charset-normalizer, certifi, blinker, annotated-types, Werkzeug, requests, pydantic-core, Jinja2, pydantic, flask, Flask-HTTPAuth
+Successfully installed Flask-HTTPAuth-4.8.0 Jinja2-3.1.4 MarkupSafe-2.1.5 Werkzeug-3.0.3 annotated-types-0.7.0 blinker-1.8.2 certifi-2024.2.2 charset-normalizer-3.3.2 click-8.1.7 flask-3.0.3 idna-3.7 itsdangerous-2.2.0 paho-mqtt-2.1.0 pydantic-2.7.2 pydantic-core-2.18.3 python-dotenv-1.0.1 requests-2.32.3 typing-extensions-4.12.0 urllib3-2.2.1 xxtea-3.2.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+Removing intermediate container 7e95937f9775
+ ---> 672fefd62562
+Step 10/17 : RUN echo "BUILDING IMAGE FOR $(uname -m)" &&     if [ "$(uname -m)" = "armv7l" ]; then     LIB_ARCH=arm; FFMPEG_ARCH=arm32v7; MTX_ARCH=armv7;     elif [ "$(uname -m)" = "aarch64" ]; then     LIB_ARCH=arm64; FFMPEG_ARCH=aarch64; MTX_ARCH=arm64v8;     else     LIB_ARCH=amd64; FFMPEG_ARCH=x86_64; MTX_ARCH=amd64;     fi &&     cd /build     && . app/.env     && mkdir -p tokens img     && curl -SL https://github.com/homebridge/ffmpeg-for-homebridge/releases/latest/download/ffmpeg-alpine-${FFMPEG_ARCH}.tar.gz     | tar xzf - -C .     && curl -SL https://github.com/bluenviron/mediamtx/releases/download/v${MTX_TAG}/mediamtx_v${MTX_TAG}_linux_${MTX_ARCH}.tar.gz     | tar xzf - -C app     && cp app/lib/lib.${LIB_ARCH} usr/local/lib/libIOTCAPIs_ALL.so     && rm -rf app/*.txt app/lib/      && if [ -z "${BUILD_DATE}" ]; then echo BUILD_DATE=$(date) > .build_date; else echo BUILD_DATE=${BUILD_DATE} > .build_date; fi
+ ---> Running in 52ec4dcf7458
+BUILDING IMAGE FOR x86_64
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 26.5M  100 26.5M    0     0  8775k      0  0:00:03  0:00:03 --:--:-- 10.2M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 13.6M  100 13.6M    0     0  6764k      0  0:00:02  0:00:02 --:--:-- 8797k
+Removing intermediate container 52ec4dcf7458
+ ---> 29d78cbf0ccb
+Step 11/17 : FROM base
+ ---> cf001c2f8af7
+Step 12/17 : ARG BUILD
+ ---> Using cache
+ ---> 4367913f5547
+Step 13/17 : ARG GITHUB_SHA
+ ---> Using cache
+ ---> df9bedf61e76
+Step 14/17 : COPY --from=builder /build /
+ ---> 9e66f10a8183
+Step 15/17 : ENV PYTHONUNBUFFERED=1 FLASK_APP=frontend BUILD=$BUILD GITHUB_SHA=$GITHUB_SHA
+ ---> Running in 33833022a6a4
+Removing intermediate container 33833022a6a4
+ ---> 51f56e47b053
+Step 16/17 : WORKDIR /app
+ ---> Running in f9f33f694d03
+Removing intermediate container f9f33f694d03
+ ---> decc7a885c73
+Step 17/17 : CMD ["flask", "run", "--host=0.0.0.0"]
+ ---> Running in dc75eef93db3
+Removing intermediate container dc75eef93db3
+ ---> e5839c10b78a
+Successfully built e5839c10b78a
+Successfully tagged kush/docker-wyze-bridge:preview
+
+real    0m27.437s
+user    0m0.065s
+sys     0m0.077s
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ time docker build -t kush/docker-wyze-bridge:preview -f docker/Dockerfile .
+Sending build context to Docker daemon  29.81MB
+Step 1/17 : ARG BUILD
+Step 2/17 : ARG BUILD_DATE
+Step 3/17 : ARG GITHUB_SHA
+Step 4/17 : FROM python:3.12-slim-bookworm as base
+ ---> cf001c2f8af7
+Step 5/17 : FROM base as builder
+ ---> cf001c2f8af7
+Step 6/17 : ARG BUILD_DATE
+ ---> Using cache
+ ---> 52f4045ad269
+Step 7/17 : RUN apt-get update     && apt-get install -y curl tar gcc     && apt-get clean     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 3efb7fb787db
+Step 8/17 : COPY ./app/ /build/app/
+ ---> fca72888a296
+Step 9/17 : RUN pip3 install --disable-pip-version-check --prefix=/build/usr/local -r /build/app/requirements.txt
+ ---> Running in e56c073ad07c
+Collecting flask (from -r /build/app/requirements.txt (line 1))
+  Downloading flask-3.0.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting Flask-HTTPAuth (from -r /build/app/requirements.txt (line 2))
+  Downloading Flask_HTTPAuth-4.8.0-py3-none-any.whl.metadata (2.9 kB)
+Collecting paho-mqtt (from -r /build/app/requirements.txt (line 3))
+  Downloading paho_mqtt-2.1.0-py3-none-any.whl.metadata (23 kB)
+Collecting pydantic (from -r /build/app/requirements.txt (line 4))
+  Downloading pydantic-2.7.2-py3-none-any.whl.metadata (108 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 108.5/108.5 kB 660.3 kB/s eta 0:00:00
+Collecting python-dotenv (from -r /build/app/requirements.txt (line 5))
+  Downloading python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting requests (from -r /build/app/requirements.txt (line 6))
+  Downloading requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting xxtea (from -r /build/app/requirements.txt (line 7))
+  Downloading xxtea-3.2.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)
+Collecting Werkzeug>=3.0.0 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading werkzeug-3.0.3-py3-none-any.whl.metadata (3.7 kB)
+Collecting Jinja2>=3.1.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading jinja2-3.1.4-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.1.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting click>=8.1.3 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading click-8.1.7-py3-none-any.whl.metadata (3.0 kB)
+Collecting blinker>=1.6.2 (from flask->-r /build/app/requirements.txt (line 1))
+  Downloading blinker-1.8.2-py3-none-any.whl.metadata (1.6 kB)
+Collecting annotated-types>=0.4.0 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.18.3 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading pydantic_core-2.18.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+Collecting typing-extensions>=4.6.1 (from pydantic->-r /build/app/requirements.txt (line 4))
+  Downloading typing_extensions-4.12.0-py3-none-any.whl.metadata (3.0 kB)
+Collecting charset-normalizer<4,>=2 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading charset_normalizer-3.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (33 kB)
+Collecting idna<4,>=2.5 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading idna-3.7-py3-none-any.whl.metadata (9.9 kB)
+Collecting urllib3<3,>=1.21.1 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading urllib3-2.2.1-py3-none-any.whl.metadata (6.4 kB)
+Collecting certifi>=2017.4.17 (from requests->-r /build/app/requirements.txt (line 6))
+  Downloading certifi-2024.2.2-py3-none-any.whl.metadata (2.2 kB)
+Collecting MarkupSafe>=2.0 (from Jinja2>=3.1.2->flask->-r /build/app/requirements.txt (line 1))
+  Downloading MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.0 kB)
+Downloading flask-3.0.3-py3-none-any.whl (101 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 101.7/101.7 kB 4.0 MB/s eta 0:00:00
+Downloading Flask_HTTPAuth-4.8.0-py3-none-any.whl (7.0 kB)
+Downloading paho_mqtt-2.1.0-py3-none-any.whl (67 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.2/67.2 kB 2.7 MB/s eta 0:00:00
+Downloading pydantic-2.7.2-py3-none-any.whl (409 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 409.5/409.5 kB 5.3 MB/s eta 0:00:00
+Downloading pydantic_core-2.18.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 7.7 MB/s eta 0:00:00
+Downloading python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Downloading requests-2.32.3-py3-none-any.whl (64 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.9/64.9 kB 2.9 MB/s eta 0:00:00
+Downloading xxtea-3.2.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Downloading blinker-1.8.2-py3-none-any.whl (9.5 kB)
+Downloading certifi-2024.2.2-py3-none-any.whl (163 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 163.8/163.8 kB 5.3 MB/s eta 0:00:00
+Downloading charset_normalizer-3.3.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (141 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 141.9/141.9 kB 5.2 MB/s eta 0:00:00
+Downloading click-8.1.7-py3-none-any.whl (97 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 97.9/97.9 kB 4.1 MB/s eta 0:00:00
+Downloading idna-3.7-py3-none-any.whl (66 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.8/66.8 kB 3.0 MB/s eta 0:00:00
+Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Downloading jinja2-3.1.4-py3-none-any.whl (133 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.3/133.3 kB 4.8 MB/s eta 0:00:00
+Downloading typing_extensions-4.12.0-py3-none-any.whl (37 kB)
+Downloading urllib3-2.2.1-py3-none-any.whl (121 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.1/121.1 kB 4.6 MB/s eta 0:00:00
+Downloading werkzeug-3.0.3-py3-none-any.whl (227 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 227.3/227.3 kB 6.4 MB/s eta 0:00:00
+Downloading MarkupSafe-2.1.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (28 kB)
+Installing collected packages: xxtea, urllib3, typing-extensions, python-dotenv, paho-mqtt, MarkupSafe, itsdangerous, idna, click, charset-normalizer, certifi, blinker, annotated-types, Werkzeug, requests, pydantic-core, Jinja2, pydantic, flask, Flask-HTTPAuth
+Successfully installed Flask-HTTPAuth-4.8.0 Jinja2-3.1.4 MarkupSafe-2.1.5 Werkzeug-3.0.3 annotated-types-0.7.0 blinker-1.8.2 certifi-2024.2.2 charset-normalizer-3.3.2 click-8.1.7 flask-3.0.3 idna-3.7 itsdangerous-2.2.0 paho-mqtt-2.1.0 pydantic-2.7.2 pydantic-core-2.18.3 python-dotenv-1.0.1 requests-2.32.3 typing-extensions-4.12.0 urllib3-2.2.1 xxtea-3.2.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+Removing intermediate container e56c073ad07c
+ ---> b502fe90003f
+Step 10/17 : RUN echo "BUILDING IMAGE FOR $(uname -m)" &&     if [ "$(uname -m)" = "armv7l" ]; then     LIB_ARCH=arm; FFMPEG_ARCH=arm32v7; MTX_ARCH=armv7;     elif [ "$(uname -m)" = "aarch64" ]; then     LIB_ARCH=arm64; FFMPEG_ARCH=aarch64; MTX_ARCH=arm64v8;     else     LIB_ARCH=amd64; FFMPEG_ARCH=x86_64; MTX_ARCH=amd64;     fi &&     cd /build     && . app/.env     && mkdir -p tokens img     && curl -SL https://github.com/homebridge/ffmpeg-for-homebridge/releases/latest/download/ffmpeg-alpine-${FFMPEG_ARCH}.tar.gz     | tar xzf - -C .     && curl -SL https://github.com/bluenviron/mediamtx/releases/download/v${MTX_TAG}/mediamtx_v${MTX_TAG}_linux_${MTX_ARCH}.tar.gz     | tar xzf - -C app     && cp app/lib/lib.${LIB_ARCH} usr/local/lib/libIOTCAPIs_ALL.so     && rm -rf app/*.txt app/lib/      && if [ -z "${BUILD_DATE}" ]; then echo BUILD_DATE=$(date) > .build_date; else echo BUILD_DATE=${BUILD_DATE} > .build_date; fi
+ ---> Running in 64f31273e214
+BUILDING IMAGE FOR x86_64
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 26.5M  100 26.5M    0     0  9237k      0  0:00:02  0:00:02 --:--:-- 10.5M
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 13.6M  100 13.6M    0     0  9026k      0  0:00:01  0:00:01 --:--:-- 11.1M
+Removing intermediate container 64f31273e214
+ ---> 24af2eece44c
+Step 11/17 : FROM base
+ ---> cf001c2f8af7
+Step 12/17 : ARG BUILD
+ ---> Using cache
+ ---> 4367913f5547
+Step 13/17 : ARG GITHUB_SHA
+ ---> Using cache
+ ---> df9bedf61e76
+Step 14/17 : COPY --from=builder /build /
+ ---> e20c82d51787
+Step 15/17 : ENV PYTHONUNBUFFERED=1 FLASK_APP=frontend BUILD=$BUILD GITHUB_SHA=$GITHUB_SHA
+ ---> Running in 8cab488a8d6d
+Removing intermediate container 8cab488a8d6d
+ ---> 7a769d9890ab
+Step 16/17 : WORKDIR /app
+ ---> Running in 285108d0236c
+Removing intermediate container 285108d0236c
+ ---> 62d21f29dafb
+Step 17/17 : CMD ["flask", "run", "--host=0.0.0.0"]
+ ---> Running in de6f4c5a24f0
+Removing intermediate container de6f4c5a24f0
+ ---> f791756a92ae
+Successfully built f791756a92ae
+Successfully tagged kush/docker-wyze-bridge:preview
+
+real    0m26.280s
+user    0m0.052s
+sys     0m0.075s
+kushal@colorado:~/source/docker-wyze-bridge$ 
+kushal@colorado:~/source/docker-wyze-bridge$ time docker push kush/docker-wyze-bridge:preview
+The push refers to repository [docker.io/kush/docker-wyze-bridge]
+6bc4d28b63bb: Pushed 
+2eb7c5261c95: Layer already exists 
+a9435642a9e3: Layer already exists 
+b3232f6d8e2e: Layer already exists 
+146826fa3ca0: Layer already exists 
+5d4427064ecc: Layer already exists 
+preview: digest: sha256:b7da99611ef7977eed59a9a778e72f01cb533bff877eda6babe73d21386a9cbd size: 1582
+
+real    0m16.020s
+user    0m0.038s
+sys     0m0.027s
+kushal@colorado:~/source/docker-wyze-bridge$ time docker-compose pull >> "$(date '+log-%Y-%m-%d-%H-%M.log.env')" 2>&1; docker-compose up >> "$(date '+log-%Y-%m-%d-%H-%M.log.env')" 2>&1
