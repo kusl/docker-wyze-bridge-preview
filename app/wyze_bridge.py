@@ -1,7 +1,10 @@
 import signal
 import sys
+import time
+from datetime import datetime, timedelta
 from dataclasses import replace
 from threading import Thread
+import threading
 
 from wyzebridge import config
 from wyzebridge.bridge_utils import env_bool, env_cam, is_livestream
@@ -30,14 +33,57 @@ class WyzeBridge(Thread):
 
     def run(self, fresh_data: bool = False) -> None:
         self.api.login(fresh_data=fresh_data)
+        run_time = timedelta(minutes=1)  # Time to run
+        stop_time = timedelta(seconds=15)  # Time to stop
+        original_run_time = datetime.now()
+        next_run_time = datetime.now() + run_time
+        streaming = False
+        needs_jigging = True
+
+        # Start the streaming in a separate thread
+        streaming_thread = threading.Thread(target=self.start_streaming)
+        streaming_thread.start()
+
+        logger.info("we are going to run now")
+        while True:
+            current_time = datetime.now()
+            logger.info(f"Current time is {current_time}")
+
+            # Check if it has been over an hour since the original run time
+            if current_time - original_run_time >= timedelta(hours=2):
+                logger.info(f"We are taking a long break here. Be back in three minutes...")
+                stop_time = timedelta(seconds=180)  # Stop for ninety seconds
+                original_run_time = datetime.now()
+                needs_jigging = True
+
+            if needs_jigging and streaming and current_time >= next_run_time:
+                # Time to stop streaming
+                logger.info(f"We are taking a short break here. Be back in fifteen seconds...")
+                self.streams.stop_all()
+                streaming = False
+                next_run_time = current_time + stop_time
+            elif not streaming and current_time >= next_run_time:
+                # Time to start streaming
+                if not streaming_thread.is_alive():
+                    logger.info(f"We are back from our break...")
+                    needs_jigging = False
+                    streaming_thread = threading.Thread(target=self.start_streaming)
+                    streaming_thread.start()
+                streaming = True
+                next_run_time = current_time + run_time
+            time.sleep(1)  # Sleep for a short time to prevent high CPU usage
+
+
+    def start_streaming(self):
         self.setup_streams()
         if self.streams.total < 1:
-            return signal.raise_signal(signal.SIGINT)
+            signal.raise_signal(signal.SIGINT)
         self.rtsp.start()
         self.streams.monitor_streams(self.rtsp.health_check)
 
     def setup_streams(self):
         """Gather and setup streams for each camera."""
+        logger.info("Gather and setup streams for each camera.")
         WyzeStream.user = self.api.get_user()
         WyzeStream.api = self.api
         for cam in self.api.filtered_cams():
