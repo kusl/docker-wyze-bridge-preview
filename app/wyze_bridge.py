@@ -49,21 +49,25 @@ class WyzeBridge(Thread):
             current_time = datetime.now()
             logger.info(f"Current time is {current_time}")
 
-            # Check if it has been over an hour since the original run time
-            if current_time - original_run_time >= timedelta(hours=2):
+            if current_time - original_run_time >= timedelta(hours=8):
                 logger.info(f"We are taking a long break here. Be back in three minutes...")
-                stop_time = timedelta(seconds=180)  # Stop for ninety seconds
+                stop_time = timedelta(seconds=180)
                 original_run_time = datetime.now()
                 needs_jigging = True
-
+            elif not streaming and current_time >= next_run_time:
+                if not streaming_thread.is_alive():
+                    logger.info(f"We are back from our break...")
+                    needs_jigging = False
+                    streaming_thread = threading.Thread(target=self.start_streaming)
+                    streaming_thread.start()
+                streaming = True
+                next_run_time = current_time + run_time
             if needs_jigging and streaming and current_time >= next_run_time:
-                # Time to stop streaming
                 logger.info(f"We are taking a short break here. Be back in fifteen seconds...")
                 self.streams.stop_all()
                 streaming = False
                 next_run_time = current_time + stop_time
             elif not streaming and current_time >= next_run_time:
-                # Time to start streaming
                 if not streaming_thread.is_alive():
                     logger.info(f"We are back from our break...")
                     needs_jigging = False
@@ -72,7 +76,6 @@ class WyzeBridge(Thread):
                 streaming = True
                 next_run_time = current_time + run_time
             time.sleep(1)  # Sleep for a short time to prevent high CPU usage
-
 
     def start_streaming(self):
         self.setup_streams()
