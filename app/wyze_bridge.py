@@ -33,49 +33,45 @@ class WyzeBridge(Thread):
 
     def run(self, fresh_data: bool = False) -> None:
         self.api.login(fresh_data=fresh_data)
-        run_time = timedelta(minutes=1)  # Time to run
-        stop_time = timedelta(seconds=15)  # Time to stop
+        run_time = timedelta(hours=8)  # Time to run before a long break
+        short_break_time = timedelta(seconds=15)  # Time for a short break
+        long_break_time = timedelta(minutes=2)  # Time for a long break
         original_run_time = datetime.now()
         next_run_time = datetime.now() + run_time
-        streaming = False
-        needs_jigging = True
+        streaming = True
+        needs_jigging = False
 
         # Start the streaming in a separate thread
         streaming_thread = threading.Thread(target=self.start_streaming)
         streaming_thread.start()
 
-        logger.info("we are going to run now")
+        logger.info("Streaming has started")
         while True:
             current_time = datetime.now()
-            logger.info(f"Current time is {current_time}")
 
-            if current_time - original_run_time >= timedelta(hours=8):
-                logger.info(f"We are taking a long break here. Be back in three minutes...")
-                stop_time = timedelta(seconds=180)
-                original_run_time = datetime.now()
-                needs_jigging = True
-            elif not streaming and current_time >= next_run_time:
-                if not streaming_thread.is_alive():
-                    logger.info(f"We are back from our break...")
-                    needs_jigging = False
-                    streaming_thread = threading.Thread(target=self.start_streaming)
-                    streaming_thread.start()
-                streaming = True
-                next_run_time = current_time + run_time
-            if needs_jigging and streaming and current_time >= next_run_time:
-                logger.info(f"We are taking a short break here. Be back in fifteen seconds...")
+            # Check if it's time for a long break
+            if current_time >= next_run_time:
+                logger.info("Taking a long break...")
                 self.streams.stop_all()
-                streaming = False
-                next_run_time = current_time + stop_time
-            elif not streaming and current_time >= next_run_time:
-                if not streaming_thread.is_alive():
-                    logger.info(f"We are back from our break...")
-                    needs_jigging = False
-                    streaming_thread = threading.Thread(target=self.start_streaming)
-                    streaming_thread.start()
-                streaming = True
+                time.sleep(long_break_time.total_seconds())
+                needs_jigging = True
                 next_run_time = current_time + run_time
-            time.sleep(1)  # Sleep for a short time to prevent high CPU usage
+                streaming = False
+
+            # Check if it's time for a short break
+            if needs_jigging and not streaming:
+                logger.info("Taking a short break...")
+                time.sleep(short_break_time.total_seconds())
+                needs_jigging = False
+                streaming = True
+
+            # Restart streaming if needed
+            if not streaming_thread.is_alive() and streaming:
+                logger.info("Resuming streaming...")
+                streaming_thread = threading.Thread(target=self.start_streaming)
+                streaming_thread.start()
+
+            time.sleep(1)  # Sleep to prevent high CPU usage
 
     def start_streaming(self):
         self.setup_streams()
