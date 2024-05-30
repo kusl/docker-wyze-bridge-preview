@@ -34,16 +34,16 @@ class WyzeBridge(Thread):
     def run(self, fresh_data: bool = False) -> None:
         self.api.login(fresh_data=fresh_data)
         # Time to run before taking a short break
-        short_break_interval = timedelta(minutes=1)
+        streaming_interval = timedelta(minutes=2)  # Stream for two minutes
         # Time for a short break
-        short_break_time = timedelta(seconds=15)
+        short_break_time = timedelta(seconds=15)  # Pause for fifteen seconds
         # Time to run before a long break
         long_break_interval = timedelta(hours=3)
         # Time for a long break
         long_break_time = timedelta(minutes=2)
 
         # Initialize the next break times
-        next_short_break_time = datetime.now() + short_break_interval
+        next_streaming_time = datetime.now() + streaming_interval
         next_long_break_time = datetime.now() + long_break_interval
 
         streaming = True
@@ -57,14 +57,21 @@ class WyzeBridge(Thread):
         while True:
             current_time = datetime.now()
 
+            # Check if it's time for streaming to continue
+            if streaming and current_time >= next_streaming_time:
+                logger.info("Continuing to stream...")
+                # No need to stop the stream here, just update the next streaming time
+                next_streaming_time = current_time + streaming_interval
+
             # Check if it's time for a short break
-            if streaming and current_time >= next_short_break_time:
+            if not streaming and current_time >= next_streaming_time - short_break_time:
                 logger.info("Taking a short break...")
                 self.streams.stop_all()
                 time.sleep(short_break_time.total_seconds())
                 needs_jigging = False
-                next_short_break_time = current_time + short_break_interval + long_break_interval
-                streaming = False
+                # After the short break, set the next streaming time
+                next_streaming_time = current_time + streaming_interval
+                streaming = True
 
             # Check if it's time for a long break
             if current_time >= next_long_break_time:
@@ -72,14 +79,15 @@ class WyzeBridge(Thread):
                 self.streams.stop_all()
                 time.sleep(long_break_time.total_seconds())
                 next_long_break_time = current_time + long_break_interval
-                streaming = False
+                # After the long break, set the next streaming time
+                next_streaming_time = current_time + streaming_interval
+                streaming = True
 
             # Restart streaming if needed
-            if not streaming_thread.is_alive() and not streaming:
+            if not streaming_thread.is_alive() and streaming:
                 logger.info("Resuming streaming...")
                 streaming_thread = threading.Thread(target=self.start_streaming)
                 streaming_thread.start()
-                streaming = True
 
             time.sleep(1)  # Sleep to prevent high CPU usage
 
