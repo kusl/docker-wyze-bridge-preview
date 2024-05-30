@@ -34,11 +34,11 @@ class WyzeBridge(Thread):
     def run(self, fresh_data: bool = False) -> None:
         self.api.login(fresh_data=fresh_data)
         # Time to run before taking a short break
-        streaming_interval = timedelta(minutes=2)  # Stream for two minutes
+        streaming_interval = timedelta(minutes=1)  # Stream
         # Time for a short break
-        short_break_time = timedelta(seconds=15)  # Pause for fifteen seconds
+        short_break_time = timedelta(seconds=15)  # Pause
         # Time to run before a long break
-        long_break_interval = timedelta(hours=3)
+        long_break_interval = timedelta(hours=11)
         # Time for a long break
         long_break_time = timedelta(minutes=2)
 
