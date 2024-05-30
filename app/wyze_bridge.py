@@ -61,6 +61,8 @@ class WyzeBridge(Thread):
             if not streaming and current_time >= next_streaming_time:
                 logger.info("Starting streaming...")
                 streaming = True
+                # Set the next streaming time after two minutes
+                next_streaming_time = current_time + streaming_interval
 
             # Check if it's time for a short break
             if streaming and current_time >= next_streaming_time - short_break_time:
