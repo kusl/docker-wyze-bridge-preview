@@ -46,7 +46,7 @@ class WyzeBridge(Thread):
         next_streaming_time = datetime.now() + streaming_interval
         next_long_break_time = datetime.now() + long_break_interval
 
-        streaming = True
+        streaming = False  # Start with streaming off
         needs_jigging = False
 
         # Start the streaming in a separate thread
@@ -57,21 +57,20 @@ class WyzeBridge(Thread):
         while True:
             current_time = datetime.now()
 
-            # Check if it's time for streaming to continue
-            if streaming and current_time >= next_streaming_time:
-                logger.info("Continuing to stream...")
-                # No need to stop the stream here, just update the next streaming time
-                next_streaming_time = current_time + streaming_interval
+            # Check if it's time to start streaming
+            if not streaming and current_time >= next_streaming_time:
+                logger.info("Starting streaming...")
+                streaming = True
 
             # Check if it's time for a short break
-            if not streaming and current_time >= next_streaming_time - short_break_time:
+            if streaming and current_time >= next_streaming_time - short_break_time:
                 logger.info("Taking a short break...")
                 self.streams.stop_all()
                 time.sleep(short_break_time.total_seconds())
                 needs_jigging = False
                 # After the short break, set the next streaming time
                 next_streaming_time = current_time + streaming_interval
-                streaming = True
+                streaming = False
 
             # Check if it's time for a long break
             if current_time >= next_long_break_time:
@@ -81,7 +80,7 @@ class WyzeBridge(Thread):
                 next_long_break_time = current_time + long_break_interval
                 # After the long break, set the next streaming time
                 next_streaming_time = current_time + streaming_interval
-                streaming = True
+                streaming = False
 
             # Restart streaming if needed
             if not streaming_thread.is_alive() and streaming:
