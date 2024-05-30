@@ -39,7 +39,7 @@ class WyzeBridge(Thread):
         original_run_time = datetime.now()
         next_run_time = datetime.now() + run_time
         streaming = True
-        needs_jigging = False
+        needs_jigging = True
 
         # Start the streaming in a separate thread
         streaming_thread = threading.Thread(target=self.start_streaming)
